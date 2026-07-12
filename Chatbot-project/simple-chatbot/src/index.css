@@ -1,4 +1,4 @@
-:root {
+/* :root {
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -108,4 +108,26 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
-}
+} */
+
+body{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .switch button{
+          border-radius: 5px;
+          padding: 15px 30px;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button-on button{
+            
+            background-color: rgb(25, 135, 84);
+            
+        }
+        .button-off button{
+             
+            background-color: rgb(220, 53, 69);
+            padding: 15px 30px;
+            
+        }

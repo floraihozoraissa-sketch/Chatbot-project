@@ -1,10 +1,4 @@
-import { useState } from 'react'
-import { ButtonTroller } from './ButtonTroller'
-import './App.css'
-
-function App() {
- 
-   function ButtonTroller(){
+function ButtonTroller(){
         const[isButtonOn, setIsButtonOn] = React.useState(true);
 
 
@@ -19,12 +13,5 @@ function App() {
                 </button>
               </div>
          )
-        }
-  return (
-    <>
-     <ButtonTroller/>
-    </>
-  )
-}
-
-export default App
+       }
+       export default ButtonTroller

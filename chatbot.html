@@ -70,6 +70,24 @@
         overflow: scroll;
         scrollbar-width: none;
       }
+      .welcome-screen{
+        flex-grow: 1;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        text-align: center;
+        color: #555;
+      }
+      .welcome-screen h1{
+        margin-bottom: 10px;
+
+      }
+      .welcome-screen p{
+        margin: 5px;
+      }
     </style>
   </head>
   <body>
@@ -84,7 +102,10 @@
     <script src="https://unpkg.com/supersimpledev/babel.js"></script>
     <script type="text/babel">
 
-  function ChatInput({ chatMessages, setChatMessages }){
+  function ChatInput({ 
+    chatMessages, 
+    setChatMessages, 
+    setshowWelcome }){
 
     const[inputText, setInputText] = React.useState('');
          
@@ -92,6 +113,13 @@
      setInputText(event.target.value);
     }
     function sendMessage(){
+
+      if(inputText.trim() === ''){
+        return;
+      }else{
+        setshowWelcome(false);
+      }
+
       const newChatMessages = [
       ...chatMessages, 
       {
@@ -191,34 +219,30 @@
   }
 
   function App(){
-    const [chatMessages, setChatMessages] = React.useState([{
-     message: 'Hello Chatbot',
-     sender: 'user',
-     id: 'id1'
-   }, {
-     message: 'Hello! How can I help you?',
-     sender: 'robot',
-     id: 'id2'
-   }, {
-     message: 'Can you get me todays date?',
-     sender: 'user',
-     id: 'id3'
-   }, {
-     message: 'Today is September 27',
-     sender: 'robot',
-     id: 'id4'
-   }]);
+    const [showWelcome, setshowWelcome] = React.useState(true);
+
+    const [chatMessages, setChatMessages] = React.useState([]);
     // const chatMessages = array[0];
     // const setChatMessages = array[1];
     return(
         <div className = 'app-container'>
           
-          <ChatMessages
+          {showWelcome ? (
+            <div>
+              <h1>👋 Welcome</h1>
+              <p>I'm your Chatbot.</p>
+              <p>Ask me anything to get started.</p>
+              </div>
+          ): (
+              <ChatMessages
           chatMessages = {chatMessages}
           />   
+          )}
+          
           <ChatInput
           chatMessages = {chatMessages}
           setChatMessages = {setChatMessages}
+          setshowWelcome = {setshowWelcome}
           />       
         </div>
     )
