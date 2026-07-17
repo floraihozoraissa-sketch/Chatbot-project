@@ -88,6 +88,18 @@
       .welcome-screen p{
         margin: 5px;
       }
+      .spinner-container {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  margin-bottom: 20px;
+}
+.gif-spinner {
+  width: 50px;
+  height: 50px;
+  margin-left: 10px;
+}
+
     </style>
   </head>
   <body>
@@ -105,14 +117,16 @@
   function ChatInput({ 
     chatMessages, 
     setChatMessages, 
-    setshowWelcome }){
+    setshowWelcome,
+    isLoading,
+    setIsLoading  }){
 
     const[inputText, setInputText] = React.useState('');
          
-    function saveInputText(){
+    function saveInputText(event){
      setInputText(event.target.value);
     }
-    function sendMessage(){
+    async function sendMessage(){
 
       if(inputText.trim() === ''){
         return;
@@ -129,9 +143,13 @@
       }
     ];
       setChatMessages(newChatMessages);
-    
-    const response = Chatbot.getResponse(inputText);
-      setChatMessages([
+      setInputText('');
+
+      setIsLoading(true);
+
+      try{
+         const response = await Chatbot.getResponseAsync(inputText);
+         setChatMessages([
       ...newChatMessages, 
       {
        message: response,
@@ -139,21 +157,36 @@
        id: crypto.randomUUID()
       }
     ]);
-
-    setInputText('');
+      } catch(error){
+        console.error("Error getting chatbot response:", error);
+      } finally {
+        setIsLoading(false);
+      }
 
     }
+    function keyPressed(event){
+     if(event.key === 'Enter'){
+      sendMessage();
+     }
+      if(event.key === 'Escape'){
+      setInputText('');
+    }
+    }
+  
 
     return(
       <div className = 'chat-input-container'>
         <input
-          placeholder="Send a message to Chatbot" 
+          placeholder={isLoading ? "Bot is typing...": "Send a message to Chatbot"}
+          disabled = {isLoading} 
           size="30"
           onChange = {saveInputText}
+          onKeyDown = {keyPressed}
           value = {inputText}
           className = 'chat-input'
          />  
         <button 
+        disabled = {isLoading || inputText.trim() === ''}
         onClick = {sendMessage}
         className = 'send-button'
         >Send</button>
@@ -191,7 +224,7 @@
   }
 
   
-  function ChatMessages({ chatMessages }){
+  function ChatMessages({ chatMessages, isLoading }){
 
    const chatMessagesRef = React.useRef(null);
 
@@ -200,49 +233,55 @@
       if(containerElem){
         containerElem.scrollTop = containerElem.scrollHeight;
       }
-    }, [chatMessages]);
+    }, [chatMessages, isLoading]);
    return(
     <div className = 'chat-messages-container' ref = {chatMessagesRef}>
-     {chatMessages.map((chatMessage) => {
-              return(
-                <ChatMessage
-                  message = {chatMessage.message}
-                  sender = {chatMessage.sender}
-                  key = {chatMessage.id}
-                />
-              )
-
-   })}
+      {chatMessages.length === 0 ? (
+        <div className="welcome-screen">
+          <h1>👋 Welcome</h1>
+          <p>I'm your Chatbot.</p>
+          <p>Ask me anything to get started.</p>
+        </div>
+      ) : (
+        chatMessages.map((chatMessage) => {
+          return(
+            <ChatMessage
+              message = {chatMessage.message}
+              sender = {chatMessage.sender}
+              key = {chatMessage.id}
+            />
+          )
+        })
+      )}
+   {isLoading && (
+    <div className = 'chat-message-robot spinner-container'>
+      <img src="robot.png" alt="robot profile" className="chat-message-profile" />
+      <img src="https://supersimple.dev/images/loading-spinner.gif" alt="Loading..." className = 'gif-spinner'/>
+      </div>
+   )}
     </div>
    )
    
   }
 
-  function App(){
-    const [showWelcome, setshowWelcome] = React.useState(true);
-
+  function App() {
+    const [isLoading, setIsLoading] = React.useState(false);
     const [chatMessages, setChatMessages] = React.useState([]);
-    // const chatMessages = array[0];
-    // const setChatMessages = array[1];
+    // const chatMessages = array;
+    // const setChatMessages = array;
     return(
         <div className = 'app-container'>
-          
-          {showWelcome ? (
-            <div>
-              <h1>👋 Welcome</h1>
-              <p>I'm your Chatbot.</p>
-              <p>Ask me anything to get started.</p>
-              </div>
-          ): (
-              <ChatMessages
-          chatMessages = {chatMessages}
+          <ChatMessages
+            chatMessages = {chatMessages}
+            isLoading = {isLoading}
           />   
-          )}
           
           <ChatInput
-          chatMessages = {chatMessages}
-          setChatMessages = {setChatMessages}
-          setshowWelcome = {setshowWelcome}
+            chatMessages = {chatMessages}
+            setChatMessages = {setChatMessages}
+            setshowWelcome = {() => {}}
+            isLoading = {isLoading}
+            setIsLoading = {setIsLoading}
           />       
         </div>
     )
